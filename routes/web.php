@@ -19,5 +19,6 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+Route::post('/dashboard/getdata', [DashboardController::class, 'getdata'])->middleware(['auth'])->name('dashboards.getdata');
 
 require __DIR__.'/auth.php';

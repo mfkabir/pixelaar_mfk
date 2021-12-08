@@ -9,22 +9,23 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">                
                 <div class="cp-6 bg-white border-b border-gray-200">
-                    <form class="row g-3" action="" method="post">
+                    <form class="row g-3" action="{{ route('dashboards.getdata') }}" method="post">
                         @csrf
                         <div class="col-auto">
-                            <input type="text" class="form-control from-date" name="from-date" placeholder="Start Date" value="">
+                            <input type="text" class="form-control from-date" name="from-date" placeholder="Start Date" value="{{ $plugin_data['start_date'] }}">
                         </div>
                         <div class="col-auto">
-                            <input type="text" class="form-control to-date" name="to-date" placeholder="End Date" value="">
+                            <input type="text" class="form-control to-date" name="to-date" placeholder="End Date" value="{{ $plugin_data['end_date'] }}">
                         </div>
                         <div class="col-auto">
                             <select class="form-select" name="plugin-name" aria-label="Default select example">
-                                <option value="">Select item</option>
-                                <option value="woocommerce">WooCommerce</option>
-                                <option value="contact-form-7">Contact-Form-7</option>
-                                <option value="classic-editor">Classic Editor</option>
-                                <option value="wordpress-seo">Yoast SEO</option>                                
+                                @foreach($plugin_data['select_items'] as $item)
+                                    <option value="{{ $item['value'] }}" {{ $item['value'] == $plugin_data['selected'] ? 'selected' : '' }}>{{ $item['name'] }}</option>
+                                @endforeach
                             </select>
+                            @error('plugin-name')
+                                <div class="alert alert-danger">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-auto">
                             <button type="submit" class="btn btn-primary mb-3">Search</button>
@@ -40,7 +41,7 @@
                     <div class="mb-3 row">
                         <label for="plugin_title" class="col-md-2 col-form-label">Plugin: </label>
                         <div class="col-md-4">
-                            <span readonly class="form-control-plaintext" id="plugin_title">WooCommerce</span>
+                            <span readonly class="form-control-plaintext" id="plugin_title">{{ $plugin_data['name'] }}</span>
                         </div>
                     </div>
                 </div>
@@ -64,7 +65,7 @@
                             </span>
                             <!--end::Svg Icon-->
                             <div class="d-flex flex-column">
-                                <div class="text-white fw-bolder fs-1 mb-0 mt-5">72.2%</div>
+                                <div class="text-white fw-bolder fs-1 mb-0 mt-5">{{ $plugin_data['activation_rate'] }}%</div>
                                 <div class="text-white fw-bold fs-6">Activation Rate</div>
                             </div>
                         </div>
@@ -93,7 +94,7 @@
                             <!--begin::Title-->
                             <div class="d-flex flex-column flex-grow-1 mb-5">
                                 <span class="text-gray-500 fw-bold me-2 fs-7">Activated</span>
-                                <span class="fw-bolder fs-1 text-gray-900">76543222</span>
+                                <span class="fw-bolder fs-1 text-gray-900">{{ $plugin_data['active_installs'] }}</span>
                             </div>
                             <!--end::Title-->
                         </div>
@@ -129,9 +130,9 @@
                     <label class="form-label">Active Install</label>
                     <div class="form-control">
                         <div class="mb-3 row">
-                            <label for="plugin_title" class="col-md-6 col-form-label">WooCommerce: </label>
+                            <label for="plugin_title" class="col-md-6 col-form-label">{{ $plugin_data['name'] }}: </label>
                             <div class="col-md-4">
-                                <span readonly class="form-control-plaintext" id="plugin_title">394857664</span>
+                                <span readonly class="form-control-plaintext" id="plugin_title">{{ $plugin_data['active_installs'] }}</span>
                             </div>
                         </div>
                     </div>
@@ -140,9 +141,9 @@
                     <label class="form-label">Downloads</label>
                     <div class="form-control">
                         <div class="mb-3 row">
-                            <label for="plugin_title" class="col-md-6 col-form-label">WooCommerce: </label>
+                            <label for="plugin_title" class="col-md-6 col-form-label">{{ $plugin_data['name'] }}: </label>
                             <div class="col-md-4">
-                                <span readonly class="form-control-plaintext" id="plugin_title">6785944430</span>
+                                <span readonly class="form-control-plaintext" id="plugin_title">{{ $plugin_data['downloaded'] }}</span>
                             </div>
                         </div>
                     </div>
@@ -160,9 +161,22 @@
             </div>            
         </div>
     </div>
-
+    
+    <?php
+        // if(sizeof($plugin_data['chart_data']) > 0){
+        //     $js_array = json_encode($plugin_data['chart_data']);
+        // }else{
+        //     $js_array = '';
+        // }
+    ?>
     @push('custom-scripts')
         <script>
+            
+            <?php
+                $js_array = [];
+                $js_array = json_encode($plugin_data['graph_data']);
+                echo "var my_array = ". $js_array . ";\n";
+            ?>
 
             $('.from-date').datepicker({
                 format: "dd/mm/yyyy",
@@ -237,16 +251,16 @@
             .attr('class', 'extra-lines')
 
             // Generate some dummy data
-            const getData = function() {
-            let JSONData = [];
-            for (var i = 0; i < 30; i++) {
-                JSONData.push({
-                "date": moment().add(i, 'days').format('MMM D YYYY'),
-                "value": Math.floor(Math.random() * (Math.floor(Math.random() * 20))) - 10
-                })
-            }
-            return JSONData.slice()
-            }
+            // const getData = function() {
+            // let JSONData = [];
+            // for (var i = 0; i < 30; i++) {
+            //     JSONData.push({
+            //     "name": moment().add(i, 'days').format('MMM D YYYY'),
+            //     "value": Math.floor(Math.random() * (Math.floor(Math.random() * 20))) - 10
+            //     })
+            // }
+            // return JSONData.slice()
+            // }
 
             const drawGraph = function(data) {
 
@@ -350,7 +364,8 @@
                 .attr("d", area)
             }
 
-            drawGraph(getData())
+            drawGraph(my_array)
         </script>
     @endpush
+    
 </x-app-layout>
