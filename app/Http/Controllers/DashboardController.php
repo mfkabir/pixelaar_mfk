@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache;
 // use Buzz\Browser;
 // use Buzz\Client\FileGetContents;
 // use Nyholm\Psr7\Factory\Psr17Factory;
@@ -91,7 +92,7 @@ class DashboardController extends Controller
             ];
         }
         // dd($return_data);
-        Redis::set('plugin_' . $plugin_name, json_encode($return_data));
+        Cache::put('plugin_' . $plugin_name, json_encode($return_data));
 
         return $return_data;
     }
@@ -108,7 +109,7 @@ class DashboardController extends Controller
         
         // dd($return_data);
         
-        $cachedPlugin = Redis::get('plugin_' . $plugin_name);
+        $cachedPlugin = Cache::get('plugin_' . $plugin_name);
 
         if(isset($cachedPlugin)) {
             $return_data = json_decode($cachedPlugin, true);
